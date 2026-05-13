@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2d3561">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Plan Parser">
+<link rel="manifest" href="manifest.json">
+<title>Planeamiento Parser → Comic Creator</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#1a1a2e;
+  --bg:#f4f1eb;
+  --surface:#fff;
+  --surface2:#f8f6f2;
+  --accent:#2d3561;
+  --accent2:#e74c3c;
+  --green:#27ae60;
+  --radius:12px;
+  --font:system-ui,-apple-system,sans-serif;
+}
+html,body{min-height:100%;background:var(--bg);font-family:var(--font);color:var(--ink);}
+
+/* HEADER */
+.header{background:var(--accent);color:white;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
+.header-icon{font-size:22px;}
+.header-title{font-size:17px;font-weight:700;flex:1;}
+.header-sub{font-size:11px;opacity:0.7;}
+.clear-btn{background:rgba(255,255,255,0.15);border:none;color:white;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;}
+.clear-btn:active{background:rgba(255,255,255,0.25);}
+
+/* MAIN */
+.main{max-width:640px;margin:0 auto;padding:16px;}
+
+/* CARD */
+.card{background:var(--surface);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+.card-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+
+/* INPUT TABS */
+.input-tabs{display:flex;gap:0;border-radius:10px;overflow:hidden;border:1.5px solid #e0dcd4;margin-bottom:12px;}
+.itab{flex:1;padding:9px 6px;border:none;background:var(--surface2);font-size:12px;font-weight:600;color:#888;cursor:pointer;transition:all 0.15s;text-align:center;}
+.itab.active{background:var(--accent);color:white;}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed #ccc;border-radius:10px;padding:24px 16px;text-align:center;cursor:pointer;transition:all 0.15s;background:var(--surface2);}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--accent);background:#eef0ff;}
+.upload-zone input{display:none;}
+.upload-icon{font-size:32px;margin-bottom:8px;}
+.upload-label{font-size:13px;color:#666;line-height:1.5;}
+.upload-label strong{color:var(--accent);}
+.upload-hint{font-size:11px;color:#aaa;margin-top:4px;}
+.upload-filename{font-size:12px;color:var(--green);font-weight:600;margin-top:8px;}
+
+/* TEXTAREA */
+textarea{width:100%;border:1.5px solid #e0dcd4;border-radius:10px;padding:10px 12px;font-size:13px;font-family:var(--font);resize:vertical;min-height:140px;background:var(--surface2);color:var(--ink);line-height:1.5;}
+textarea:focus{outline:none;border-color:var(--accent);}
+
+/* GENERATE BTN */
+.generate-btn{width:100%;padding:14px;border:none;border-radius:10px;background:linear-gradient(135deg,#2d3561,#667eea);color:white;font-size:15px;font-weight:700;cursor:pointer;transition:opacity 0.15s;letter-spacing:0.3px;margin-top:4px;}
+.generate-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.generate-btn:active{opacity:0.85;}
+
+/* STATUS */
+.status{padding:10px 12px;border-radius:10px;font-size:13px;line-height:1.5;display:none;}
+.status.loading{display:block;background:#eef0ff;border:1px solid #c5cdf7;color:var(--accent);}
+.status.error{display:block;background:#fde8e8;border:1px solid #f5c6c6;color:#c0392b;}
+
+/* RESULT */
+.result-card{display:none;}
+.result-card.visible{display:block;}
+.field-row{margin-bottom:12px;}
+.field-label{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;}
+.field-value{background:var(--surface2);border:1.5px solid #e8e4dc;border-radius:8px;padding:9px 12px;font-size:13px;line-height:1.5;color:var(--ink);position:relative;}
+.field-value.tag-list{display:flex;flex-wrap:wrap;gap:5px;padding:8px 10px;}
+.tag{background:#e8eeff;color:var(--accent);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:500;}
+.copy-field-btn{position:absolute;top:6px;right:6px;background:var(--accent);color:white;border:none;border-radius:6px;padding:3px 8px;font-size:10px;cursor:pointer;opacity:0.7;}
+.copy-field-btn:hover{opacity:1;}
+
+/* GRADE/PHASE SELECTORS IN RESULT */
+.selects-row{display:flex;gap:8px;margin-bottom:12px;}
+.sel-group{flex:1;}
+.sel-group label{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:4px;}
+select{width:100%;padding:8px 10px;border:1.5px solid #e0dcd4;border-radius:8px;font-size:13px;color:var(--ink);background:var(--surface2);font-family:var(--font);}
+
+/* ACTION BUTTONS */
+.action-row{display:flex;gap:8px;margin-top:4px;}
+.copy-btn{flex:1;padding:11px;border:1.5px solid var(--accent);background:white;color:var(--accent);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;}
+.copy-btn:active{background:#eef0ff;}
+.open-btn{flex:2;padding:11px;border:none;background:var(--accent);color:white;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.15s;}
+.open-btn:active{opacity:0.85;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:9px 18px;border-radius:20px;font-size:13px;z-index:999;white-space:nowrap;opacity:0;transition:opacity 0.2s;pointer-events:none;}
+.toast.show{opacity:1;}
+
+/* SPINNER */
+@keyframes spin{to{transform:rotate(360deg);}}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;}
+
+@media(max-width:480px){
+  .action-row{flex-direction:column;}
+  .open-btn,.copy-btn{flex:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-icon">📋</span>
+  <div>
+    <div class="header-title">Planeamiento Parser</div>
+    <div class="header-sub">→ Comic Creator AOA</div>
+  </div>
+  <button class="clear-btn" onclick="resetAll()">🔄 Reset</button>
+</div>
+
+<div class="main">
+
+  <!-- INPUT CARD -->
+  <div class="card">
+    <div class="card-title">📄 Upload or paste your planeamiento</div>
+
+    <div class="input-tabs">
+      <button class="itab active" data-tab="upload" onclick="switchTab('upload',this)">📁 File</button>
+      <button class="itab" data-tab="paste" onclick="switchTab('paste',this)">📋 Paste text</button>
+    </div>
+
+    <!-- FILE UPLOAD TAB -->
+    <div id="tab-upload">
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+        <input type="file" id="fileInput" accept=".docx,.pdf,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" onchange="handleFile(this.files[0])">
+        <div class="upload-icon">📂</div>
+        <div class="upload-label"><strong>Tap to select file</strong><br>or drag and drop here</div>
+        <div class="upload-hint">.docx · .pdf · .txt</div>
+        <div class="upload-filename" id="uploadFilename"></div>
+      </div>
+    </div>
+
+    <!-- PASTE TAB -->
+    <div id="tab-paste" style="display:none;">
+      <textarea id="pasteText" placeholder="Paste the text of your planeamiento here...&#10;&#10;Include: objectives, vocabulary, target structures, theme, grade..."></textarea>
+    </div>
+
+    <div style="margin-top:12px;">
+      <button class="generate-btn" id="parseBtn" onclick="parseLesson()">📋 Extract Comic Elements</button>
+    </div>
+    <div class="status" id="parseStatus"></div>
+  </div>
+
+  <!-- RESULT CARD -->
+  <div class="card result-card" id="resultCard">
+    <div class="card-title">✅ Extracted Elements</div>
+
+    <div class="field-row">
+      <div class="field-label">Topic / Theme</div>
+      <div class="field-value" id="outTopic">—<button class="copy-field-btn" onclick="copyField('outTopic')">copy</button></div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-label">Key Vocabulary</div>
+      <div class="field-value tag-list" id="outVocab"></div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-label">Target Structure</div>
+      <div class="field-value" id="outStructure">—<button class="copy-field-btn" onclick="copyField('outStructure')">copy</button></div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-label">Communicative Function</div>
+      <div class="field-value" id="outFunction">—<button class="copy-field-btn" onclick="copyField('outFunction')">copy</button></div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-label">Hook / Warm-up Question</div>
+      <div class="field-value" id="outHook">—<button class="copy-field-btn" onclick="copyField('outHook')">copy</button></div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-label">Expected Outcome</div>
+      <div class="field-value" id="outOutcome">—<button class="copy-field-btn" onclick="copyField('outOutcome')">copy</button></div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid #eee;margin:14px 0;">
+
+    <div class="selects-row">
+      <div class="sel-group">
+        <label>Grade level</label>
+        <select id="outGrade">
+          <option>Pre-K / Kinder</option>
+          <option>Grade 1-2</option>
+          <option>Grade 3-4</option>
+          <option selected>Grade 5-6</option>
+        </select>
+      </div>
+      <div class="sel-group">
+        <label>AOA Phase</label>
+        <select id="outPhase">
+          <option>Warm-up</option>
+          <option>Presentation</option>
+          <option>Practice</option>
+          <option>Reading</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button class="copy-btn" onclick="copyAll()">📋 Copy all</button>
+      <button class="open-btn" onclick="openInComicCreator()">🎨 Open in Comic Creator →</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

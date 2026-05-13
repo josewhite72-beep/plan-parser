@@ -1,0 +1,13 @@
+{
+  "name": "Planeamiento Parser → Comic Creator",
+  "short_name": "Plan Parser",
+  "description": "Extrae elementos AOA del planeamiento y los envía al Comic Creator",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2d3561",
+  "theme_color": "#2d3561",
+  "lang": "es",
+  "icons": [
+    { "src": "icon.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
