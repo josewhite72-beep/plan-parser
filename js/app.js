@@ -1,5 +1,5 @@
 // ===== CONFIG =====
-const COMIC_CREATOR_URL = 'https://comic-creator-ten.vercel.app/';
+const COMIC_CREATOR_URL = 'https://comic-creator-2.vercel.app/';
 
 // ===== STATE =====
 let currentTab = 'upload';
