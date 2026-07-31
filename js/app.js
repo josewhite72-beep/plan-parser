@@ -247,16 +247,20 @@ function openInComicCreator() {
   showToast('Opening Comic Creator...');
 }
 
-// ===== RESET =====
-function resetAll() {
-  extractedFileText = '';
-  lastResult = null;
-  document.getElementById('uploadFilename').textContent = '';
-  document.getElementById('pasteText').value = '';
-  document.getElementById('fileInput').value = '';
-  document.getElementById('parseStatus').className = 'status';
-  document.getElementById('resultCard').classList.remove('visible');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+// ===== CLEAR CACHE =====
+async function clearCache() {
+  if (!confirm('Clear cache and reload the app?')) return;
+  // Unregister all service workers
+  if ('serviceWorker' in navigator) {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(r => r.unregister()));
+  }
+  // Delete all caches
+  if ('caches' in window) {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k => caches.delete(k)));
+  }
+  location.reload(true);
 }
 
 // ===== TOAST =====

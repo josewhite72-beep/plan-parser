@@ -113,7 +113,7 @@ select{width:100%;padding:8px 10px;border:1.5px solid #e0dcd4;border-radius:8px;
     <div class="header-title">Planeamiento Parser</div>
     <div class="header-sub">→ Comic Creator AOA</div>
   </div>
-  <button class="clear-btn" onclick="resetAll()">🔄 Reset</button>
+  <button class="clear-btn" id="clearCacheBtn" title="Clear cache & reload" onclick="clearCache()">🔄 Reset</button>
 </div>
 
 <div class="main">
@@ -219,5 +219,13 @@ select{width:100%;padding:8px 10px;border:1.5px solid #e0dcd4;border-radius:8px;
 <script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="js/app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .catch(err => console.log('SW:', err));
+  });
+}
+</script>
 </body>
 </html>
